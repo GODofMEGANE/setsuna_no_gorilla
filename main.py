@@ -33,7 +33,7 @@ def main():
 
     while(True):
         timer -= 1
-        if return_wait > 1:
+        if return_wait > 0:
             return_wait -= 1
         if status == -1:
             screen.fill((0,0,0))
@@ -94,7 +94,7 @@ def main():
                 status = 3
                 return_wait = 50
         pygame.display.update()
-        pygame.time.wait(25)
+        pygame.time.wait(15)
 
         for event in pygame.event.get():
             if event.type == KEYDOWN:
