@@ -9,7 +9,7 @@ import random
 DEBUG = False # FalseからTrueにするとTimerとかを見れます
 FRAME_MIN = 200 # !マークが出るまでの時間の下限
 FRAME_MAX = 350 # !マークが出るまでの時間の上限
-ENEMY_FRAME = [30, 20, 14, 11, 8] # 敵が反応するまでの時間，左からEASY，NORMAL，HARD，HELL，IMPOSSIBLE
+ENEMY_FRAME = [40, 25, 18, 13, 10] # 敵が反応するまでの時間，左からEASY，NORMAL，HARD，HELL，IMPOSSIBLE
 
 def main():
     pygame.init()
