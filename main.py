@@ -19,7 +19,7 @@ def main():
     img_bg = pygame.transform.scale(pygame.image.load("images/bg.jpg"), (600, 400))
     img_bikkuri = pygame.image.load("images/bikkuri.png").convert_alpha()
     img_gorilla1 = pygame.image.load("images/gorilla1.png").convert_alpha()
-    img_gorilla2 = pygame.image.load("images/gorilla2.png").convert_alpha()
+    img_gorilla2 = pygame.image.load("images/enemy1.png").convert_alpha()
     img_miss = pygame.image.load("images/miss.png").convert_alpha()
     img_win = pygame.image.load("images/win.png").convert_alpha()
     img_lose = pygame.image.load("images/lose.png").convert_alpha()
@@ -35,6 +35,7 @@ def main():
     timer = 0
     timer_return = 0
     select_menu = 0
+    cleared = [0, 0, 0, 0, 0]
     menu_num = 3 # 難易度の数，初めは3，HELL開放で4，IMPOSSIBLE開放で5
 
     while(True):
@@ -45,21 +46,28 @@ def main():
         if game_status == "menu": # メニュー画面
             screen.blit(img_title, [0, 0])
             text = font_menu.render("EASY", True, (255,255,255))
-            screen.blit(text, [200, 100])
+            screen.blit(text, [250, 100])
             text = font_menu.render("NORMAL", True, (255,255,255))
-            screen.blit(text, [200, 150])
+            screen.blit(text, [250, 150])
             text = font_menu.render("HARD", True, (255,255,255))
-            screen.blit(text, [200, 200])
+            screen.blit(text, [250, 200])
             if menu_num >= 4: # 解禁済みなら色を変える，(100,100,100)はグレー(未解禁)，(255,255,255)は白(解禁済み)
                 text = font_menu.render("HELL", True, (255,255,255))
             else:
                 text = font_menu.render("HELL", True, (100,100,100))
-            screen.blit(text, [200, 250])
+            screen.blit(text, [250, 250])
             if menu_num >= 5: # 解禁済みなら表示
                 text = font_menu.render("IMPOSSIBLE", True, (255,100,100))
-                screen.blit(text, [200, 300])
+                screen.blit(text, [250, 300])
             text = font_menu.render(">", True, (255,255,255)) # カーソル
             screen.blit(text, [150, 50*(select_menu+2)-5])
+            for stage in range(5):
+                if cleared[stage] == 1:
+                    text = font_menu.render("X", True, (255,50,50))
+                    screen.blit(text, [200, 50*(stage+2)])
+                if cleared[stage] == 2:
+                    text = font_menu.render("O", True, (50,255,50))
+                    screen.blit(text, [200, 50*(stage+2)])
 
         elif game_status == "fight": # ゲーム中
             screen.blit(img_bg, [0, 0])
@@ -70,6 +78,7 @@ def main():
             screen.blit(img_gorilla2, (550-img_gorilla2.get_rect()[2], 250))
             if timer > 0: # カットイン中なら
                 screen.blit(img_cutin, [0, 0])
+                screen.blit(img_gorilla2, (570-img_gorilla2.get_rect()[2], 300))
             if timer == 0: # カットインが終わった瞬間に1回だけ
                 mixer.music.load("sounds/wind.mp3")
                 mixer.music.play(1)
@@ -104,6 +113,8 @@ def main():
                 screen.blit(img_tip, (300, 350))
 
         elif game_status == "lose": # 負けた時
+            if cleared[select_menu] == 0:
+                cleared[select_menu] = 1
             screen.blit(img_bg, (0, 0))
             text = font.render(str(finish_frame), True, (0,0,0))
             screen.blit(text, [373, 335])
@@ -147,6 +158,7 @@ def main():
                         game_status = "win"
                         timer = 150 # ゴリラが踊りだすまでの時間
                         timer_return = 100 # スペースキーで戻れるようになるまでの時間
+                        cleared[select_menu] = 2
                         if select_menu == 2 and menu_num == 3: # HARDクリアでHELL解禁
                             menu_num = 4
                         if select_menu == 3 and menu_num == 4: # HELLクリアでIMPOSSIBLE解禁
@@ -160,6 +172,16 @@ def main():
                     enemy_frame = ENEMY_FRAME[select_menu]
                     game_status = "fight"
                     flying_dist = 0
+                    if select_menu == 0:
+                        img_gorilla2 = pygame.image.load("images/enemy1.png").convert_alpha()
+                    if select_menu == 1:
+                        img_gorilla2 = pygame.image.load("images/enemy2.png").convert_alpha()
+                    if select_menu == 2:
+                        img_gorilla2 = pygame.image.load("images/enemy3.png").convert_alpha()
+                    if select_menu == 3:
+                        img_gorilla2 = pygame.image.load("images/enemy4.png").convert_alpha()
+                    if select_menu == 4:
+                        img_gorilla2 = pygame.image.load("images/enemy5.png").convert_alpha()
                     mixer.music.load("sounds/ready.mp3")
                     mixer.music.play(1)
                     timer = 200 # ゲームが始まる時のカットインの表示時間
