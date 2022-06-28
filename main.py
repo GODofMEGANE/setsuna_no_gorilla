@@ -4,6 +4,7 @@ import pygame
 from pygame import mixer
 from pygame.locals import *
 import sys
+import math
 import random
 
 DEBUG = False # FalseからTrueにするとTimerとかを見れます
@@ -17,9 +18,11 @@ def main():
     screen = pygame.display.set_mode((600, 400))
     img_title = pygame.transform.scale(pygame.image.load("images/title.jpg"), (600, 400))
     img_bg = pygame.transform.scale(pygame.image.load("images/bg.jpg"), (600, 400))
+    img_audience = pygame.transform.scale(pygame.image.load("images/audience.png"), (600, 400))
     img_bikkuri = pygame.image.load("images/bikkuri.png").convert_alpha()
-    img_gorilla1 = pygame.image.load("images/gorilla1.png").convert_alpha()
-    img_gorilla2 = pygame.image.load("images/enemy1.png").convert_alpha()
+    img_gorilla = pygame.image.load("images/gorilla1.png").convert_alpha()
+    img_enemy = pygame.image.load("images/enemy1.png").convert_alpha()
+    img_badgorilla = pygame.image.load("images/gorilla2.png").convert_alpha()
     img_miss = pygame.image.load("images/miss.png").convert_alpha()
     img_win = pygame.image.load("images/win.png").convert_alpha()
     img_lose = pygame.image.load("images/lose.png").convert_alpha()
@@ -71,14 +74,15 @@ def main():
 
         elif game_status == "fight": # ゲーム中
             screen.blit(img_bg, [0, 0])
+            screen.blit(img_audience, (0, -70))
             if DEBUG:
                 text = font.render(str(left_frame), True, (100,100,100))
                 screen.blit(text, [373, 335])
-            screen.blit(img_gorilla1, (50, 250))
-            screen.blit(img_gorilla2, (550-img_gorilla2.get_rect()[2], 250))
+            screen.blit(img_gorilla, (50, 250))
+            screen.blit(img_enemy, (550-img_enemy.get_rect()[2], 250))
+            screen.blit(img_badgorilla, (600-img_enemy.get_rect()[2], 300))
             if timer > 0: # カットイン中なら
                 screen.blit(img_cutin, [0, 0])
-                screen.blit(img_gorilla2, (570-img_gorilla2.get_rect()[2], 300))
             if timer == 0: # カットインが終わった瞬間に1回だけ
                 mixer.music.load("sounds/wind.mp3")
                 mixer.music.play(1)
@@ -99,15 +103,17 @@ def main():
 
         elif game_status == "win": # 勝った時
             screen.blit(img_bg, (0, 0))
+            screen.blit(img_audience, (0, -70-abs(math.sin(flying_dist/500*math.pi)*100)))
             text = font.render(str(finish_frame), True, (0,0,0))
             screen.blit(text, [373, 335])
             if timer == 0:
-                img_gorilla1 = pygame.image.load("images/gorilla_win.png").convert_alpha() # timerが0で画像をドラミングゴリラに変更
+                img_gorilla = pygame.image.load("images/gorilla_win.png").convert_alpha() # timerが0で画像をドラミングゴリラに変更
             if timer < 0 and -timer % 20 == 0:
-                img_gorilla1 = pygame.transform.flip(img_gorilla1, True, False) # 20フレーム毎に左右反転
+                img_gorilla = pygame.transform.flip(img_gorilla, True, False) # 20フレーム毎に左右反転
             screen.blit(img_win, (300-img_win.get_rect()[2]/2, 100-img_win.get_rect()[3]/2))
-            screen.blit(img_gorilla1, (200, 250))
-            screen.blit(pygame.transform.rotate(img_gorilla2, 270), (400-img_gorilla2.get_rect()[2]+flying_dist, 200-flying_dist))
+            screen.blit(img_gorilla, (200, 250))
+            screen.blit(pygame.transform.rotate(img_enemy, 270), (400-img_enemy.get_rect()[2]+flying_dist, 200-flying_dist))
+            screen.blit(img_badgorilla, (600-img_enemy.get_rect()[2]+random.randint(-10, 10), 300+random.randint(-10, 10)))
             flying_dist += 15
             if timer_return <= 0:
                 screen.blit(img_tip, (300, 350))
@@ -116,17 +122,20 @@ def main():
             if cleared[select_menu] == 0:
                 cleared[select_menu] = 1
             screen.blit(img_bg, (0, 0))
+            screen.blit(img_audience, (0, -70+flying_dist/10))
             text = font.render(str(finish_frame), True, (0,0,0))
             screen.blit(text, [373, 335])
             screen.blit(img_lose, (300-img_lose.get_rect()[2]/2, 100-img_lose.get_rect()[3]/2))
-            screen.blit(pygame.transform.rotate(img_gorilla1, 90), (200-flying_dist, 200-flying_dist))
-            screen.blit(img_gorilla2, (350-img_gorilla2.get_rect()[2], 250))
+            screen.blit(pygame.transform.rotate(img_gorilla, 90), (200-flying_dist, 200-flying_dist))
+            screen.blit(img_enemy, (350-img_enemy.get_rect()[2], 250))
+            screen.blit(img_badgorilla, (600-img_enemy.get_rect()[2], 300-abs(math.sin(flying_dist/500*math.pi)*100)))
             flying_dist += 15
             if timer_return <= 0:
                 screen.blit(img_tip, (300, 350))
 
         elif game_status == "miss": # おてつきした時
             screen.blit(img_bg, (0, 0))
+            screen.blit(img_audience, (0, -70))
             if timer == 0: # ゲームに戻る時に
                 left_frame = random.randint(FRAME_MIN, FRAME_MAX) # !マークが出るまでの時間を再びランダムに決める
                 mixer.music.load("sounds/wind.mp3")
@@ -173,20 +182,20 @@ def main():
                     game_status = "fight"
                     flying_dist = 0
                     if select_menu == 0:
-                        img_gorilla2 = pygame.image.load("images/enemy1.png").convert_alpha()
+                        img_enemy = pygame.image.load("images/enemy1.png").convert_alpha()
                     if select_menu == 1:
-                        img_gorilla2 = pygame.image.load("images/enemy2.png").convert_alpha()
+                        img_enemy = pygame.image.load("images/enemy2.png").convert_alpha()
                     if select_menu == 2:
-                        img_gorilla2 = pygame.image.load("images/enemy3.png").convert_alpha()
+                        img_enemy = pygame.image.load("images/enemy3.png").convert_alpha()
                     if select_menu == 3:
-                        img_gorilla2 = pygame.image.load("images/enemy4.png").convert_alpha()
+                        img_enemy = pygame.image.load("images/enemy4.png").convert_alpha()
                     if select_menu == 4:
-                        img_gorilla2 = pygame.image.load("images/enemy5.png").convert_alpha()
+                        img_enemy = pygame.image.load("images/enemy5.png").convert_alpha()
                     mixer.music.load("sounds/ready.mp3")
                     mixer.music.play(1)
                     timer = 200 # ゲームが始まる時のカットインの表示時間
                 elif event.key == K_SPACE and (game_status == "win" or game_status == "lose") and timer_return <= 0: # ゲームが終わってからスペースキーが押されたら
-                    img_gorilla1 = pygame.image.load("images/gorilla1.png").convert_alpha()
+                    img_gorilla = pygame.image.load("images/gorilla1.png").convert_alpha()
                     left_frame = 0
                     game_status = "menu"
                 if event.key == K_DOWN and game_status == "menu": # カーソルを下に移動
